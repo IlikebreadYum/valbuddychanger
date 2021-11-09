@@ -1,83 +1,22 @@
 console.clear();
 
-
 const valapi = require('./valapi');
 const inquirer = require('inquirer');
 const axios = require('axios');
 const fuzzy = require('fuzzy');
 const fs = require('fs');
 
+
 var client = new valapi.LocalClient();
-var weapons = [];
-var buddies = [];
-var buddylist;
-var Playerloadout;
-fs.access(process.env.APPDATA + "/val-buddy-changer/data/data.json", (e) => {
-    if (e == null) {
-        fs.readFile(process.env.APPDATA + "/val-buddy-changer/data/data.json", 'utf-8', (e, data) => {
-            if (e) throw new Error(e);
-            weapons = JSON.parse(data).weapons;
-            buddies = JSON.parse(data).buddies;
-            main();
-        })
-    } else {
-        makeWeaponsFile();
-    }
-})
+var buddyManager = new valapi.BuddyManager();
+var weaponManager = new valapi.WeaponManager();
 
 
-async function makeWeaponsFile() {
-    fs.mkdirSync(process.env.APPDATA + "/val-buddy-changer", {recursive:true}, (err, data) => {
-        if (err) throw new Error(err);
-    });
-
-    let weaponResponse = await axios.request("https://valorant-api.com/v1/weapons", {
-        method: "GET",
-    });
-    for (weapon of weaponResponse.data.data) {
-        weapons.push({
-            "name": weapon.displayName,
-            "id": weapon.uuid
-        })
-    }
-
-
-    let buddyResponse = await axios.request("https://valorant-api.com/v1/buddies", {
-        method: "GET",
-    });
-    for (buddy of buddyResponse.data.data) {
-        buddies.push({
-            "name": buddy.displayName,
-            "id": buddy.uuid
-        })
-    }
-
-    var data = {
-        "weapons": weapons,
-        "buddies": buddies
-    }
-
-    fs.writeFile(process.env.APPDATA + "/val-buddy-changer/data.json", JSON.stringify(data), (e) => {
-        if (e) throw new Error(e);
-    });
-    main();
-    
-}
-
-function makeBuddyList() {
-    var buddylist = [];
-
-    for (i of buddies) {
-        buddylist.push(i.name);
-    }
-
-    return buddylist;
-}
 
 function searchBuddyList(answers, input) {
     input = input || '';
     return new Promise(function (resolve) {
-            var fuzzyResult = fuzzy.filter(input, buddylist);
+            var fuzzyResult = fuzzy.filter(input, buddyManager.returnNameList());
             const results = fuzzyResult.map(function (el) {
                 return el.original;
             });
@@ -101,7 +40,6 @@ async function main() {
         }
     });
 
-    buddylist = makeBuddyList();
     inquirer.registerPrompt('autocomplete', require('inquirer-autocomplete-prompt'));
     questions = [];
 

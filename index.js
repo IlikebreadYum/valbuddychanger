@@ -10,6 +10,7 @@ const fs = require('fs');
 var client = new valapi.LocalClient();
 var buddyManager = new valapi.BuddyManager();
 var weaponManager = new valapi.WeaponManager();
+var configManager = new valapi.ConfigManager();
 
 
 
@@ -27,15 +28,17 @@ function searchBuddyList(answers, input) {
         });
 }
 
+(async()=>{
+    await configManager.getConfig(buddyManager, weaponManager);
 
-async function main() {
-    gunsWithCharms = [];
+    var gunsWithCharms = [];
+    var playerLoadout;
     await client.init('na');
     await client.fetchPlayerLoadout().then(function (loadout) {
         playerloadout = loadout;
         for(i of loadout.Guns) {
             if(i.CharmID){
-                gunsWithCharms.push(weapons.find(e => e.id === i.ID))
+                gunsWithCharms.push(weaponManager.fetchById(i.ID))
             }
         }
     });
@@ -57,9 +60,10 @@ async function main() {
 
     inquirer.prompt(questions).then((answers)=>{
         for(i in answers){
-            playerloadout.Guns.find(e => e.ID == weapons.find(e => e.name == i).id).CharmID = buddies.find(e => e.name == answers[i]).id
-            client.updatePlayerLoadout(playerloadout)
+            playerloadout.Guns.find(e => e.ID == weaponManager.fetchByName(i).id).CharmID = buddyManager.fetchByName(answers[i]).id
+            
         }
+        client.updatePlayerLoadout(playerloadout);
+        console.clear();
     });
-
-}
+})()

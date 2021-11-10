@@ -6,19 +6,23 @@ class WeaponManager {
     }
 
     fetchByName(name) {
+        var found;
         this.weapons.forEach((e) => {
-            if (e.name == name) return e;
+            if (e.name == name) found = e;
         })
+        return found;
     }
 
     fetchById(id) {
+        var found;
         this.weapons.forEach((e) => {
-            if (e.id == id) return e;
+            if (e.id == id) found = e;
         })
+        return found;
     }
     
     returnJSON() {
-        return JSON.stringify(buddies);
+        return JSON.stringify(this.weapons);
     }
 
     returnNameList(){
@@ -32,3 +36,5 @@ class WeaponManager {
         return this.NameList;
     }
 }
+
+module.exports = WeaponManager;

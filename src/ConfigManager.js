@@ -1,12 +1,14 @@
+const fs = require('fs');
+const axios = require('axios');
 
-class configManager {
+class ConfigManager {
     async getConfig(buddyManager, weaponManager) {
         return new Promise((resolve, reject) => {
-            fs.access(process.env.APPDATA + "/val-buddy-changer/data/data.json", (e) => {
+            fs.access(process.env.APPDATA + "/val-buddy-changer/data/data.json", async (e) => {
                 if (e == null) {
                     fs.readFile(process.env.APPDATA + "/val-buddy-changer/data/data.json", 'utf-8', (e, data) => {
                         if (e) throw new Error(e);
-                        weapons = JSON.parse(data).weapons;
+                        weaponManager.buildFromJSON(JSON.parse(data).weapons)
                         buddyManager.buildFromJSON(JSON.parse(data).buddies);
                         resolve();
                     })
@@ -18,23 +20,20 @@ class configManager {
                     let weaponResponse = await axios.request("https://valorant-api.com/v1/weapons", {
                         method: "GET",
                     });
-                    for (weapon of weaponResponse.data.data) {
-                        weapons.push({
-                            "name": weapon.displayName,
-                            "id": weapon.uuid
-                        })
+                    for (var weapon of weaponResponse.data.data) {
+                            weaponManager.add(weapon.displayName,weapon.uuid);
                     }
 
 
                     let buddyResponse = await axios.request("https://valorant-api.com/v1/buddies", {
                         method: "GET",
                     });
-                    for (buddy of buddyResponse.data.data) {
+                    for (var buddy of buddyResponse.data.data) {
                         buddyManager.add(buddy.displayName, buddy.uuid);
                     }
 
                     var data = {
-                        "weapons": weapons,
+                        "weapons": weaponManager.returnJSON(),
                         "buddies": buddyManager.returnJSON()
                     }
 
@@ -47,3 +46,5 @@ class configManager {
         })
     }
 }
+
+module.exports = ConfigManager;

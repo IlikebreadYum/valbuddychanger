@@ -16,19 +16,23 @@ class BuddyManager {
     }
 
     fetchByName(name) {
+        var found;
         this.buddies.forEach((e) => {
-            if (e.name == name) return e;
+            if (e.name == name) found = e;
         })
+        return found;
     }
 
     fetchById(id) {
+        var found;
         this.buddies.forEach((e) => {
-            if (e.id == id) return e;
+            if (e.id == id) found = e;
         })
+        return found;
     }
     
     returnJSON() {
-        return JSON.stringify(buddies);
+        return JSON.stringify(this.buddies);
     }
 
     returnNameList(){
@@ -42,3 +46,5 @@ class BuddyManager {
         return this.NameList;
     }
 }
+
+module.exports = BuddyManager;

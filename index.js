@@ -12,7 +12,7 @@ var buddyManager = new valapi.BuddyManager();
 var weaponManager = new valapi.WeaponManager();
 var configManager = new valapi.ConfigManager();
 
-
+inquirer.registerPrompt('autocomplete', require('inquirer-autocomplete-prompt'));
 
 function searchBuddyList(answers, input) {
     input = input || '';
@@ -28,29 +28,40 @@ function searchBuddyList(answers, input) {
         });
 }
 
-(async()=>{
-    await configManager.getConfig(buddyManager, weaponManager);
+function searchGuns(answers, input) {
+    input = input || '';
+    return new Promise(function (resolve) {
+            var fuzzyResult = fuzzy.filter(input, weaponManager.weaponsWithCharms.returnNameList());
+            const results = fuzzyResult.map(function (el) {
+                return el.original;
+            });
 
-    var gunsWithCharms = [];
-    var playerLoadout;
+            results.splice(5, 0, new inquirer.Separator());
+            results.push(new inquirer.Separator());
+            resolve(results);
+        });
+}
+
+
+async function main() {
+    gunsWithCharms = [];
     await client.init('na');
     await client.fetchPlayerLoadout().then(function (loadout) {
         playerloadout = loadout;
         for(i of loadout.Guns) {
             if(i.CharmID){
-                gunsWithCharms.push(weaponManager.fetchById(i.ID))
+                weaponManager.weaponsWithCharms.addByJSON(weaponManager.fetchById(i.ID), )
             }
         }
     });
 
-    inquirer.registerPrompt('autocomplete', require('inquirer-autocomplete-prompt'));
     questions = [];
 
-    for (i in gunsWithCharms) {
+    for (i of weaponManager.weaponsWithCharms.returnNameList()) {
         questions.push({
             type: "autocomplete",
-            name: gunsWithCharms[i].name,
-            message: `Pick buddy for ${gunsWithCharms[i].name}`,
+            name: weaponManager.weaponsWithCharms.returnNameList()[i],
+            message: `Pick buddy for ${weaponManager.weaponsWithCharms.returnNameList()[i]}`,
             pageSize: 10,
             searchText: "Searching...",
             emptyText: "Nothing Found!",
@@ -60,10 +71,63 @@ function searchBuddyList(answers, input) {
 
     inquirer.prompt(questions).then((answers)=>{
         for(i in answers){
-            playerloadout.Guns.find(e => e.ID == weaponManager.fetchByName(i).id).CharmID = buddyManager.fetchByName(answers[i]).id
-            
+            playerloadout.Guns.find(e => e.ID == weapons.find(e => e.name == i).id).CharmID = buddies.find(e => e.name == answers[i]).id
+            client.updatePlayerLoadout(playerloadout)
         }
-        client.updatePlayerLoadout(playerloadout);
-        console.clear();
     });
-})()
+
+}
+
+async function topPrompt(){
+    questions = [];
+    questions.push({
+        "type":"list",
+        "name":"command",
+        "choices":["Set Specific","Set All","Save"],
+        "message":"What would you like to do?"
+    })
+    inquirer.prompt(questions).then((answers)=>{
+        switch (answers.command){
+            case "Set Specific":
+                specificPrompt();
+            break
+
+            case "Set All":
+                allPrompt();
+            break;
+
+            case "Save":
+                save();
+            break
+        }
+    })
+}
+
+async function specificPrompt(){
+    questions = [];
+    weaponManager.weaponsWithCharms.returnNameList().forEach(element => {
+        questions.push({
+            type: "autocomplete",
+            name: weaponManager.weaponsWithCharms.returnNameList()[i],
+            message: `Pick buddy for ${weaponManager.weaponsWithCharms.returnNameList()[i]}`,
+            pageSize: 10,
+            searchText: "Searching...",
+            emptyText: "Nothing Found!",
+            source: searchBuddyList
+        });
+        await inquirer.prompt(questions).then((answers)=>{
+            console.log(answers);
+        })
+    });
+    topPrompt();
+}
+
+async function allPrompt(){
+    questions = [];
+
+    topPrompt();
+}
+
+async function save(){
+
+}

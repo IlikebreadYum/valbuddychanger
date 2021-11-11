@@ -1,8 +1,13 @@
 class WeaponManager {
     weapons = [];
+    weaponsWithCharms = new WeaponManager();
 
     add(name, id) {
         this.weapons.push({ "name": name, "id": id })
+    }
+
+    addByJSON(json){
+        this.weapons.push(json)
     }
 
     fetchByName(name) {

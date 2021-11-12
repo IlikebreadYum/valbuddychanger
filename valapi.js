@@ -1,8 +1,12 @@
 module.exports = {
-  Regions: require('./src/Regions'),
-  LocalClient: require('./src/LocalClient'),
-  StandaloneClient: require('./src/StandaloneClient'),
-  BuddyManager: require('./src/BuddyManager'),
-  WeaponManager: require('./src/WeaponManager'),
-  ConfigManager: require('./src/ConfigManager')
+  Regions: require('./src/client/Regions'),
+  LocalClient: require('./src/client/LocalClient'),
+  StandaloneClient: require('./src/client/StandaloneClient'),
+
+
+  BuddyManager: require('./src/dataManagers/BuddyManager'),
+  WeaponManager: require('./src/dataManagers/WeaponManager'),
+  ConfigManager: require('./src/dataManagers/ConfigManager'),
+
+  BuddyPrompt: require('./src/tabs/buddyTab')
 };

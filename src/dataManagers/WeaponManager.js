@@ -1,6 +1,11 @@
 class WeaponManager {
     weapons = [];
-    weaponsWithCharms = new WeaponManager();
+
+    constructor (charms=false) {
+        if(!charms){
+            this.weaponsWithCharms = new WeaponManager(true);
+        }
+    }
 
     add(name, id) {
         this.weapons.push({ "name": name, "id": id })
@@ -28,6 +33,10 @@ class WeaponManager {
     
     returnJSON() {
         return JSON.stringify(this.weapons);
+    }
+
+    buildFromJSON(data){
+        this.weapons = data;
     }
 
     returnNameList(){

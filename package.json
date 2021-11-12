@@ -1,0 +1,21 @@
+{
+  "name": "valorant-api",
+  "version": "1.0.0",
+  "description": "Unofficial wrapper for the Valorant in-game API.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Burak <burak@burak.fr>",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "axios": "^0.21.1",
+    "axios-cookiejar-support": "^1.0.1",
+    "axios-socks5-agent": "^1.0.1",
+    "fuzzy": "^0.1.3",
+    "inquirer": "^8.2.0",
+    "inquirer-autocomplete-prompt": "^1.4.0",
+    "tough-cookie": "^4.0.0",
+    "ws": "^7.4.6"
+  }
+}
